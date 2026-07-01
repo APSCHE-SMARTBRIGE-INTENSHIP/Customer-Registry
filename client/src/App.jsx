@@ -11,11 +11,13 @@ import MyComplaints from './pages/MyComplaints';
 import AdminDashboard from './pages/AdminDashboard';
 import AgentDashboard from './pages/AgentDashboard';
 import ChatRoom from './pages/ChatRoom';
+import Customers from './pages/Customers';
+import Agents from './pages/Agents';
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
+      <div className="app-container" style={{ background: '#fff' }}>
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -23,19 +25,19 @@ function App() {
           <Route path="/register" element={<Register />} />
           
           <Route path="/profile" element={
-            <ProtectedRoute allowedRoles={['customer', 'agent', 'admin']}>
+            <ProtectedRoute allowedRoles={['user', 'agent', 'admin']}>
               <Profile />
             </ProtectedRoute>
           } />
           
           <Route path="/lodge-complaint" element={
-            <ProtectedRoute allowedRoles={['customer']}>
+            <ProtectedRoute allowedRoles={['user']}>
               <Complaints />
             </ProtectedRoute>
           } />
           
           <Route path="/my-complaints" element={
-            <ProtectedRoute allowedRoles={['customer']}>
+            <ProtectedRoute allowedRoles={['user']}>
               <MyComplaints />
             </ProtectedRoute>
           } />
@@ -51,9 +53,21 @@ function App() {
               <AgentDashboard />
             </ProtectedRoute>
           } />
+
+          <Route path="/customers" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Customers />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/agents" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Agents />
+            </ProtectedRoute>
+          } />
           
           <Route path="/chat/:complaintId" element={
-            <ProtectedRoute allowedRoles={['customer', 'agent', 'admin']}>
+            <ProtectedRoute allowedRoles={['user', 'agent', 'admin']}>
               <ChatRoom />
             </ProtectedRoute>
           } />

@@ -1,12 +1,13 @@
 const Complaint = require('../models/Complaint');
 
 exports.createComplaint = async (req, res) => {
-  const { title, description, category } = req.body;
+  const { name, phone, email, description } = req.body;
   try {
     const complaint = await Complaint.create({
-      title,
+      name,
+      phone,
+      email,
       description,
-      category,
       customer: req.user._id
     });
     res.status(201).json(complaint);
@@ -18,14 +19,14 @@ exports.createComplaint = async (req, res) => {
 exports.getComplaints = async (req, res) => {
   try {
     let query = {};
-    if (req.user.role === 'customer') {
+    if (req.user.role === 'user') {
       query = { customer: req.user._id };
     } else if (req.user.role === 'agent') {
       query = { agent: req.user._id };
     }
     const complaints = await Complaint.find(query)
-      .populate('customer', 'name email phone')
-      .populate('agent', 'name email')
+      .populate('customer', 'firstName lastName email')
+      .populate('agent', 'firstName lastName email')
       .sort({ createdAt: -1 });
     res.json(complaints);
   } catch (error) {
@@ -36,13 +37,13 @@ exports.getComplaints = async (req, res) => {
 exports.getComplaintById = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
-      .populate('customer', 'name email phone')
-      .populate('agent', 'name email');
+      .populate('customer', 'firstName lastName email')
+      .populate('agent', 'firstName lastName email');
     if (!complaint) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
     if (
-      req.user.role === 'customer' &&
+      req.user.role === 'user' &&
       complaint.customer._id.toString() !== req.user._id.toString()
     ) {
       return res.status(403).json({ message: 'Not authorized to view this complaint' });

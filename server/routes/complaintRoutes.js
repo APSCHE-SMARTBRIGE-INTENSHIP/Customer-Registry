@@ -11,7 +11,7 @@ const {
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-  .post(protect, authorize('customer'), createComplaint)
+  .post(protect, authorize('user'), createComplaint)
   .get(protect, getComplaints);
 
 router.route('/:id')
@@ -19,6 +19,6 @@ router.route('/:id')
 
 router.put('/:id/assign', protect, authorize('admin'), assignAgent);
 router.put('/:id/status', protect, authorize('agent', 'admin'), updateStatus);
-router.put('/:id/feedback', protect, authorize('customer'), submitFeedback);
+router.put('/:id/feedback', protect, authorize('user'), submitFeedback);
 
 module.exports = router;

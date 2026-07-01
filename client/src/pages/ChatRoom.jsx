@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Send, ArrowLeft } from 'lucide-react';
 
 const ChatRoom = () => {
   const { complaintId } = useParams();
@@ -78,54 +78,60 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="main-content">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-        <button onClick={handleBack} className="btn btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem' }}>
+    <div style={{ background: '#f8f9fa', minHeight: 'calc(100vh - 60px)', padding: '2rem' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+        <button onClick={handleBack} style={{ background: 'none', border: '1px solid #ced4da', borderRadius: '4px', padding: '0.4rem 0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.9rem' }}>
           <ArrowLeft size={16} /> Back
         </button>
         {complaint && (
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.4rem' }}>{complaint.title}</h2>
-            <p style={{ margin: 0, fontSize: '0.85rem' }}>
-              Category: {complaint.category} | Ticket Status:{' '}
-              <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>{complaint.status.replace('_', ' ')}</span>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#2c3e50' }}>{complaint.title || complaint.description.substring(0, 30)}</h2>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#6c757d' }}>
+              Complainant: {complaint.name} | Status:{' '}
+              <span style={{ textTransform: 'capitalize', fontWeight: 'bold' }}>{complaint.status}</span>
             </p>
           </div>
         )}
       </div>
 
-      <div className="glass-card" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '550px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', background: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', display: 'flex', flexDirection: 'column', height: '520px', boxShadow: '0 4px 6px rgba(0,0,0,0.03)' }}>
         {complaint && (
-          <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+          <div style={{ padding: '0.8rem 1.2rem', borderBottom: '1px solid #e9ecef', background: '#f8f9fa', display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#495057' }}>
             <div>
-              <strong>Customer:</strong> {complaint.customer?.name}
+              <strong>Lodge by:</strong> {complaint.name}
             </div>
             <div>
-              <strong>Agent:</strong> {complaint.agent?.name || 'Waiting to assign...'}
+              <strong>Assigned Agent:</strong> {complaint.agent ? `${complaint.agent.firstName} ${complaint.agent.lastName}` : 'Unassigned'}
             </div>
           </div>
         )}
 
-        <div className="chat-messages" style={{ flex: '1', overflowY: 'auto', padding: '1.5rem' }}>
+        <div className="chat-messages" style={{ flex: '1', overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           {messages.map((m) => {
             const isMe = user && m.sender?._id === user.id;
+            const senderName = m.sender ? `${m.sender.firstName} ${m.sender.lastName}` : 'System';
             return (
               <div
                 key={m._id}
-                className={`message-bubble ${isMe ? 'sent' : 'received'}`}
                 style={{
                   alignSelf: isMe ? 'flex-end' : 'flex-start',
-                  background: isMe ? 'var(--primary)' : 'rgba(255, 255, 255, 0.08)',
-                  marginBottom: '1rem'
+                  background: isMe ? '#007bff' : '#f1f3f5',
+                  color: isMe ? '#fff' : '#212529',
+                  padding: '0.6rem 1rem',
+                  borderRadius: '12px',
+                  maxWidth: '70%',
+                  borderBottomRightRadius: isMe ? '2px' : '12px',
+                  borderBottomLeftRadius: isMe ? '12px' : '2px',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                 }}
               >
                 {!isMe && (
-                  <div style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: '600', marginBottom: '0.2rem', textTransform: 'capitalize' }}>
-                    {m.sender?.name} ({m.sender?.role})
+                  <div style={{ fontSize: '0.75rem', color: '#007bff', fontWeight: 'bold', marginBottom: '0.2rem' }}>
+                    {senderName} ({m.sender?.role})
                   </div>
                 )}
-                <div>{m.text}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dark)', marginTop: '0.2rem', textAlign: 'right' }}>
+                <div style={{ fontSize: '0.95rem' }}>{m.text}</div>
+                <div style={{ fontSize: '0.65rem', color: isMe ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '0.25rem', textAlign: 'right' }}>
                   {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
@@ -135,21 +141,20 @@ const ChatRoom = () => {
         </div>
 
         {complaint && complaint.status === 'closed' ? (
-          <div style={{ padding: '1.2rem', textAlign: 'center', color: 'var(--text-muted)', borderTop: '1px solid var(--border-glass)', background: 'rgba(255,255,255,0.01)' }}>
+          <div style={{ padding: '1rem', textAlign: 'center', color: '#6c757d', borderTop: '1px solid #e9ecef', background: '#f8f9fa', fontSize: '0.9rem' }}>
             This ticket is closed. Chat is archived.
           </div>
         ) : (
-          <form onSubmit={handleSendMessage} className="chat-input-area">
+          <form onSubmit={handleSendMessage} style={{ padding: '1rem', borderTop: '1px solid #e9ecef', display: 'flex', gap: '0.8rem' }}>
             <input
               type="text"
-              className="form-control"
               placeholder="Type your message..."
+              style={{ flex: '1', padding: '0.6rem 0.8rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              style={{ flex: '1' }}
               required
             />
-            <button type="submit" className="btn btn-primary" style={{ width: 'auto', padding: '0.8rem 1.5rem' }}>
+            <button type="submit" style={{ background: '#007bff', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Send size={16} />
             </button>
           </form>

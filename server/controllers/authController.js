@@ -6,16 +6,22 @@ const generateToken = (id) => {
 };
 
 exports.register = async (req, res) => {
-  const { name, email, password, phone, role } = req.body;
+  const { firstName, lastName, username, email, password, role } = req.body;
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
-    const user = await User.create({ name, email, password, phone, role });
+    const user = await User.create({ firstName, lastName, username, email, password, role });
     res.status(201).json({
       token: generateToken(user._id),
-      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role }
+      user: {
+        id: user._id,
+        name: `${user.firstName} ${user.lastName}`,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,7 +35,13 @@ exports.login = async (req, res) => {
     if (user && (await user.comparePassword(password))) {
       res.json({
         token: generateToken(user._id),
-        user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role }
+        user: {
+          id: user._id,
+          name: `${user.firstName} ${user.lastName}`,
+          username: user.username,
+          email: user.email,
+          role: user.role
+        }
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -56,18 +68,19 @@ exports.updateProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     if (user) {
-      user.name = req.body.name || user.name;
+      user.firstName = req.body.firstName || user.firstName;
+      user.lastName = req.body.lastName || user.lastName;
+      user.username = req.body.username || user.username;
       user.email = req.body.email || user.email;
-      user.phone = req.body.phone || user.phone;
       if (req.body.password) {
         user.password = req.body.password;
       }
       const updatedUser = await user.save();
       res.json({
         id: updatedUser._id,
-        name: updatedUser.name,
+        name: `${updatedUser.firstName} ${updatedUser.lastName}`,
+        username: updatedUser.username,
         email: updatedUser.email,
-        phone: updatedUser.phone,
         role: updatedUser.role
       });
     } else {
@@ -80,7 +93,31 @@ exports.updateProfile = async (req, res) => {
 
 exports.getAgents = async (req, res) => {
   try {
-    const agents = await User.find({ role: 'agent' }).select('name email phone');
+    const agents = await User.find({ role: 'agent' }).select('firstName lastName username email');
+    const formattedAgents = agents.map(a => ({
+      _id: a._id,
+      name: `${a.firstName} ${a.lastName}`,
+      email: a.email
+    }));
+    res.json(formattedAgents);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Admin routes to fetch all customers and agents
+exports.getAllCustomers = async (req, res) => {
+  try {
+    const customers = await User.find({ role: 'user' }).select('firstName lastName username email createdAt');
+    res.json(customers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllAgentsList = async (req, res) => {
+  try {
+    const agents = await User.find({ role: 'agent' }).select('firstName lastName username email createdAt');
     res.json(agents);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserCheck, ShieldAlert, BarChart2, RefreshCw, MessageSquare } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [complaints, setComplaints] = useState([]);
@@ -68,37 +67,37 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="main-content">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 60px)', padding: '3rem 2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', maxWidth: '1100px', margin: '0 auto 2rem' }}>
         <div>
-          <h1>Admin Dashboard</h1>
-          <p>Review complaints and assign them to support agents for resolution.</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50' }}>Complaints Management</h1>
+          <p style={{ color: '#7f8c8d' }}>Review complaints and assign them to support agents for resolution.</p>
         </div>
-        <button onClick={fetchData} className="btn btn-secondary" style={{ width: 'auto', padding: '0.6rem' }} disabled={refreshing}>
-          <RefreshCw size={18} className={refreshing ? 'spin' : ''} />
+        <button onClick={fetchData} style={{ background: '#6c757d', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>
+          Refresh
         </button>
       </div>
 
-      <div className="stats-grid" style={{ marginBottom: '2rem' }}>
-        <div className="stat-card" style={{ padding: '1.5rem' }}>
-          <div className="stat-value">{stats.total}</div>
-          <div className="stat-label">Total Tickets</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', maxWidth: '1100px', margin: '0 auto 2rem' }}>
+        <div style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '1rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>{stats.total}</div>
+          <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>Total Tickets</div>
         </div>
-        <div className="stat-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--warning)' }}>
-          <div className="stat-value" style={{ color: 'var(--warning)' }}>{stats.pending}</div>
-          <div className="stat-label">Pending</div>
+        <div style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '1rem', textAlign: 'center', borderLeft: '4px solid #ffc107' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#ffc107' }}>{stats.pending}</div>
+          <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>Pending</div>
         </div>
-        <div className="stat-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--info)' }}>
-          <div className="stat-value" style={{ color: 'var(--info)' }}>{stats.inProgress}</div>
-          <div className="stat-label">In Progress</div>
+        <div style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '1rem', textAlign: 'center', borderLeft: '4px solid #17a2b8' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#17a2b8' }}>{stats.inProgress}</div>
+          <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>In Progress</div>
         </div>
-        <div className="stat-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--success)' }}>
-          <div className="stat-value" style={{ color: 'var(--success)' }}>{stats.resolved}</div>
-          <div className="stat-label">Resolved</div>
+        <div style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '1rem', textAlign: 'center', borderLeft: '4px solid #28a745' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#28a745' }}>{stats.resolved}</div>
+          <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>Resolved</div>
         </div>
-        <div className="stat-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--text-dark)' }}>
-          <div className="stat-value" style={{ color: 'var(--text-muted)' }}>{stats.closed}</div>
-          <div className="stat-label">Closed</div>
+        <div style={{ border: '1px solid #dee2e6', borderRadius: '6px', padding: '1rem', textAlign: 'center', borderLeft: '4px solid #6c757d' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#6c757d' }}>{stats.closed}</div>
+          <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>Closed</div>
         </div>
       </div>
 
@@ -107,44 +106,42 @@ const AdminDashboard = () => {
           <p>Loading complaints...</p>
         </div>
       ) : (
-        <div className="table-container">
+        <div className="table-container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <table>
             <thead>
               <tr>
-                <th>Customer</th>
-                <th>Subject</th>
-                <th>Category</th>
+                <th>Customer Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Complaint Details</th>
                 <th>Status</th>
                 <th>Assigned Agent</th>
-                <th>Actions</th>
+                <th>Chat</th>
               </tr>
             </thead>
             <tbody>
               {complaints.map((c) => (
                 <tr key={c._id}>
-                  <td>
-                    <div style={{ fontWeight: '600' }}>{c.customer?.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{c.customer?.email}</div>
+                  <td>{c.name}</td>
+                  <td>{c.phone}</td>
+                  <td>{c.email}</td>
+                  <td style={{ maxWidth: '250px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    {c.description}
                   </td>
                   <td>
-                    <div style={{ fontWeight: '500' }}>{c.title}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {c.description}
-                    </div>
-                  </td>
-                  <td>{c.category}</td>
-                  <td>
-                    <span className={`badge badge-${c.status}`}>{c.status.replace('_', ' ')}</span>
+                    <span className={`badge badge-${c.status}`} style={{ textTransform: 'capitalize' }}>
+                      {c.status}
+                    </span>
                   </td>
                   <td>
                     {c.status === 'closed' || c.status === 'resolved' ? (
-                      <span style={{ fontSize: '0.9rem' }}>{c.agent?.name || 'N/A'}</span>
+                      <span>{c.agent ? `${c.agent.firstName} ${c.agent.lastName}` : 'N/A'}</span>
                     ) : (
                       <select
                         className="form-control"
                         value={c.agent?._id || ''}
                         onChange={(e) => handleAssignAgent(c._id, e.target.value)}
-                        style={{ padding: '0.4rem 0.6rem', fontSize: '0.9rem', width: '160px', background: '#0b0f19' }}
+                        style={{ padding: '0.3rem 0.5rem', fontSize: '0.9rem', width: '150px', background: '#fff', color: '#495057' }}
                       >
                         <option value="">Assign Agent...</option>
                         {agents.map((a) => (
@@ -154,20 +151,20 @@ const AdminDashboard = () => {
                     )}
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      {c.agent && (
-                        <button onClick={() => navigate(`/chat/${c._id}`)} className="btn btn-secondary" style={{ width: 'auto', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
-                          <MessageSquare size={14} />
-                          Chat
-                        </button>
-                      )}
-                    </div>
+                    {c.agent && (
+                      <button 
+                        onClick={() => navigate(`/chat/${c._id}`)} 
+                        style={{ background: '#007bff', color: '#fff', border: 'none', padding: '0.3rem 0.7rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+                      >
+                        Chat
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
               {complaints.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#6c757d' }}>
                     No complaints registered in the system.
                   </td>
                 </tr>

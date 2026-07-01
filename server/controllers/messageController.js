@@ -10,7 +10,7 @@ exports.sendMessage = async (req, res) => {
       return res.status(404).json({ message: 'Complaint not found' });
     }
     if (
-      req.user.role === 'customer' &&
+      req.user.role === 'user' &&
       complaint.customer.toString() !== req.user._id.toString()
     ) {
       return res.status(403).json({ message: 'Not authorized to send messages here' });
@@ -28,7 +28,7 @@ exports.sendMessage = async (req, res) => {
       text
     });
 
-    const populatedMessage = await message.populate('sender', 'name role');
+    const populatedMessage = await message.populate('sender', 'firstName lastName role');
     res.status(201).json(populatedMessage);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -43,7 +43,7 @@ exports.getMessages = async (req, res) => {
       return res.status(404).json({ message: 'Complaint not found' });
     }
     if (
-      req.user.role === 'customer' &&
+      req.user.role === 'user' &&
       complaint.customer.toString() !== req.user._id.toString()
     ) {
       return res.status(403).json({ message: 'Not authorized to view messages' });
@@ -56,7 +56,7 @@ exports.getMessages = async (req, res) => {
     }
 
     const messages = await Message.find({ complaint: complaintId })
-      .populate('sender', 'name role')
+      .populate('sender', 'firstName lastName role')
       .sort({ createdAt: 1 });
     res.json(messages);
   } catch (error) {

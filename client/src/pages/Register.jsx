@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('customer');
+  const [roleInput, setRoleInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -14,12 +15,26 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const normalizedRole = roleInput.trim().toLowerCase();
+    if (!['admin', 'user', 'agent'].includes(normalizedRole)) {
+      setError("Role must be exactly 'admin', 'user', or 'agent'");
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch('http://localhost:8000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, password, role })
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          username,
+          email,
+          password,
+          role: normalizedRole
+        })
       });
       const data = await response.json();
       if (!response.ok) {
@@ -39,83 +54,90 @@ const Register = () => {
   };
 
   return (
-    <div className="container-sm">
-      <div className="glass-card">
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Account</h2>
+    <div style={{ background: '#f8f9fa', minHeight: 'calc(100vh - 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+      <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', padding: '2.5rem', width: '100%', maxWidth: '420px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '1.8rem', color: '#212529', marginBottom: '2rem', fontWeight: 'bold' }}>Sign Up</h2>
+        
         {error && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.8rem', borderRadius: '8px', color: '#f87171', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          <div style={{ background: '#f8d7da', border: '1px solid #f5c6cb', padding: '0.8rem', borderRadius: '4px', color: '#721c24', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
+
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>First Name</label>
             <input
               type="text"
-              id="name"
-              className="form-control"
-              placeholder="Lokesh Sai Srinivas"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter first name"
+              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
+          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Last Name</label>
+            <input
+              type="text"
+              placeholder="Enter last name"
+              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>User Name</label>
+            <input
+              type="text"
+              placeholder="Enter user name"
+              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Email</label>
             <input
               type="email"
-              id="email"
-              className="form-control"
-              placeholder="lokesh@example.com"
+              placeholder="Enter email"
+              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number</label>
-            <input
-              type="text"
-              id="phone"
-              className="form-control"
-              placeholder="9876543210"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
+          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Password</label>
             <input
               type="password"
-              id="password"
-              className="form-control"
-              placeholder="••••••••"
+              placeholder="Enter password"
+              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="role">Register As</label>
-            <select
-              id="role"
-              className="form-control"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              style={{ background: '#0b0f19' }}
-            >
-              <option value="customer">Customer</option>
-              <option value="agent">Support Agent</option>
-              <option value="admin">Administrator</option>
-            </select>
+          <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Type (admin, user, agent)</label>
+            <input
+              type="text"
+              placeholder="Enter type (admin, user, agent)"
+              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
+              value={roleInput}
+              onChange={(e) => setRoleInput(e.target.value)}
+              required
+            />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }} disabled={loading}>
-            {loading ? 'Creating Account...' : 'Register'}
+          <button type="submit" style={{ width: '100%', background: '#007bff', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '4px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer' }} disabled={loading}>
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-          Already have an account? <Link to="/login" style={{ color: '#8b5cf6', fontWeight: '500' }}>Login here</Link>
+        
+        <p style={{ textAlign: 'center', marginTop: '1.2rem', fontSize: '0.9rem', color: '#6c757d' }}>
+          Already have an account? <Link to="/login" style={{ color: '#007bff', textDecoration: 'none' }}>Log In</Link>
         </p>
       </div>
     </div>

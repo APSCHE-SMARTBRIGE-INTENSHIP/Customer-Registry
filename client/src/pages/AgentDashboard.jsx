@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, CheckSquare, Calendar, RefreshCw } from 'lucide-react';
 
 const AgentDashboard = () => {
   const [complaints, setComplaints] = useState([]);
@@ -49,14 +48,14 @@ const AgentDashboard = () => {
   };
 
   return (
-    <div className="main-content">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div style={{ background: '#fff', minHeight: 'calc(100vh - 60px)', padding: '3rem 2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', maxWidth: '1000px', margin: '0 auto 2rem' }}>
         <div>
-          <h1>Agent Dashboard</h1>
-          <p>Manage tickets assigned to you. Communicate with customers and resolve issues.</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#2c3e50' }}>Agent Dashboard</h1>
+          <p style={{ color: '#7f8c8d' }}>Manage complaints assigned to you. Message customers and resolve issues.</p>
         </div>
-        <button onClick={fetchAssignedComplaints} className="btn btn-secondary" style={{ width: 'auto', padding: '0.6rem' }} disabled={refreshing}>
-          <RefreshCw size={18} />
+        <button onClick={fetchAssignedComplaints} style={{ background: '#6c757d', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }} disabled={refreshing}>
+          Refresh
         </button>
       </div>
 
@@ -65,40 +64,38 @@ const AgentDashboard = () => {
           <p>Loading assigned complaints...</p>
         </div>
       ) : complaints.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#7f8c8d' }}>
           <p>No complaints have been assigned to you yet.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
           {complaints.map((c) => (
-            <div key={c._id} className="glass-card" style={{ padding: '2rem' }}>
+            <div key={c._id} style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', padding: '2rem', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div>
-                  <span className="badge badge-closed" style={{ marginRight: '0.8rem', background: 'rgba(255,255,255,0.05)' }}>{c.category}</span>
-                  <span className={`badge badge-${c.status}`}>{c.status.replace('_', ' ')}</span>
-                  <h3 style={{ marginTop: '0.5rem', fontSize: '1.3rem' }}>{c.title}</h3>
+                  <span className={`badge badge-${c.status}`} style={{ textTransform: 'capitalize', marginRight: '0.8rem' }}>{c.status}</span>
+                  <span style={{ fontSize: '0.85rem', color: '#6c757d' }}>ID: {c._id}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  <Calendar size={14} />
+                <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
                   {new Date(c.createdAt).toLocaleDateString()}
                 </div>
               </div>
 
-              <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+              <div style={{ padding: '1rem', background: '#f8f9fa', borderRadius: '6px', marginBottom: '1.5rem', border: '1px solid #e9ecef' }}>
+                <div style={{ fontSize: '0.85rem', color: '#6c757d', marginBottom: '0.2rem' }}>
                   Customer Details:
                 </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>{c.customer?.name}</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Email: {c.customer?.email} | Phone: {c.customer?.phone}</div>
+                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#495057' }}>{c.name}</div>
+                <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>Email: {c.email} | Phone: {c.phone}</div>
               </div>
 
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '1.5rem', whiteSpace: 'pre-wrap' }}>
+              <p style={{ fontSize: '0.95rem', color: '#212529', marginBottom: '1.5rem', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                 {c.description}
               </p>
 
-              <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ borderTop: '1px solid #e9ecef', paddingTop: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                  <label htmlFor={`status-${c._id}`} style={{ margin: 0 }}>Update Status:</label>
+                  <label htmlFor={`status-${c._id}`} style={{ margin: 0, fontSize: '0.9rem', fontWeight: '500' }}>Update Status:</label>
                   {c.status === 'closed' ? (
                     <span className="badge badge-closed">Closed</span>
                   ) : (
@@ -107,7 +104,7 @@ const AgentDashboard = () => {
                       className="form-control"
                       value={c.status}
                       onChange={(e) => handleStatusChange(c._id, e.target.value)}
-                      style={{ padding: '0.4rem 0.6rem', fontSize: '0.9rem', background: '#0b0f19' }}
+                      style={{ padding: '0.3rem 0.5rem', fontSize: '0.9rem', background: '#fff', color: '#495057' }}
                     >
                       <option value="in_progress">In Progress</option>
                       <option value="resolved">Resolved</option>
@@ -116,22 +113,17 @@ const AgentDashboard = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button onClick={() => navigate(`/chat/${c._id}`)} className="btn btn-primary" style={{ width: 'auto', padding: '0.6rem 1.2rem' }}>
-                    <MessageSquare size={16} />
+                  <button onClick={() => navigate(`/chat/${c._id}`)} style={{ background: '#007bff', color: '#fff', border: 'none', padding: '0.5rem 1.2rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600' }}>
                     Open Chat
                   </button>
                 </div>
               </div>
 
               {c.status === 'closed' && c.feedback && (
-                <div style={{ marginTop: '1.5rem', padding: '1.2rem', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '10px' }}>
-                  <h4 style={{ color: 'var(--success)', marginBottom: '0.3rem', fontSize: '0.9rem' }}>Feedback Received</h4>
-                  <div style={{ display: 'flex', gap: '0.2rem', marginBottom: '0.3rem', color: '#fbbf24' }}>
-                    {Array.from({ length: c.feedback.rating }).map((_, i) => (
-                      <Star key={i} fill="#fbbf24" size={14} />
-                    ))}
-                  </div>
-                  {c.feedback.comments && <p style={{ fontStyle: 'italic', fontSize: '0.9rem', marginBottom: 0 }}>"{c.feedback.comments}"</p>}
+                <div style={{ marginTop: '1.5rem', padding: '1.2rem', background: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '6px', color: '#155724' }}>
+                  <h4 style={{ marginBottom: '0.3rem', fontSize: '0.9rem' }}>Feedback Received</h4>
+                  <div style={{ fontSize: '0.85rem' }}>Rating: {c.feedback.rating} / 5</div>
+                  {c.feedback.comments && <p style={{ fontStyle: 'italic', fontSize: '0.9rem', marginTop: '0.3rem', marginBottom: 0 }}>"{c.feedback.comments}"</p>}
                 </div>
               )}
             </div>
