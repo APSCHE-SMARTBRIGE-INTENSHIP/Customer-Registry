@@ -1,24 +1,38 @@
 const express = require('express');
-const router = express.Router();
 const {
   createComplaint,
   getComplaints,
-  getComplaintById,
-  assignAgent,
+  assignComplaint,
   updateStatus,
-  submitFeedback
+  addMessage,
+  closeComplaint,
+  getAnalytics,
+  getCustomerHistory,
 } = require('../controllers/complaintController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
+const router = express.Router();
+
 router.route('/')
-  .post(protect, authorize('user'), createComplaint)
+  .post(protect, authorize('Customer'), createComplaint)
   .get(protect, getComplaints);
 
-router.route('/:id')
-  .get(protect, getComplaintById);
+router.route('/analytics')
+  .get(protect, authorize('Admin'), getAnalytics);
 
-router.put('/:id/assign', protect, authorize('admin'), assignAgent);
-router.put('/:id/status', protect, authorize('agent', 'admin'), updateStatus);
-router.put('/:id/feedback', protect, authorize('user'), submitFeedback);
+router.route('/customer/:customerId')
+  .get(protect, authorize('Admin', 'Agent'), getCustomerHistory);
+
+router.route('/:id/assign')
+  .patch(protect, authorize('Admin'), assignComplaint);
+
+router.route('/:id/status')
+  .patch(protect, authorize('Agent'), updateStatus);
+
+router.route('/:id/messages')
+  .post(protect, addMessage); // Auth logic handled in controller (Customer/Agent/Admin)
+
+router.route('/:id/close')
+  .put(protect, authorize('Customer'), closeComplaint);
 
 module.exports = router;

@@ -1,143 +1,105 @@
-import React, { useState } from 'react';
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [roleInput, setRoleInput] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', username: '', email: '', password: '', role: 'Customer' });
+  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    const normalizedRole = roleInput.trim().toLowerCase();
-    if (!['admin', 'user', 'agent'].includes(normalizedRole)) {
-      setError("Role must be exactly 'admin', 'user', or 'agent'");
-      return;
-    }
-
-    setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          username,
-          email,
-          password,
-          role: normalizedRole
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      if (data.user.role === 'admin') navigate('/admin-dashboard');
-      else if (data.user.role === 'agent') navigate('/agent-dashboard');
-      else navigate('/my-complaints');
+      const user = await register(formData.firstName, formData.lastName, formData.username, formData.email, formData.password, formData.role);
+      if (user.role === 'Admin') navigate('/admin');
+      else if (user.role === 'Agent') navigate('/agent');
+      else navigate('/home');
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || 'Registration failed');
     }
   };
 
   return (
-    <div style={{ background: '#f8f9fa', minHeight: 'calc(100vh - 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', padding: '2.5rem', width: '100%', maxWidth: '420px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-        <h2 style={{ textAlign: 'center', fontSize: '1.8rem', color: '#212529', marginBottom: '2rem', fontWeight: 'bold' }}>Sign Up</h2>
-        
-        {error && (
-          <div style={{ background: '#f8d7da', border: '1px solid #f5c6cb', padding: '0.8rem', borderRadius: '4px', color: '#721c24', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            {error}
-          </div>
-        )}
-
+    <div className="auth-container">
+      <div className="glass-panel animate-fade-in" style={{ width: '450px', padding: '3rem 2rem', textAlign: 'center' }}>
+        <h2 style={{ marginBottom: '2rem', color: '#000', fontWeight: 'bold' }}>Sign Up</h2>
+        {error && <p style={{ color: 'var(--danger-color)', marginBottom: '1rem' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>First Name</label>
-            <input
-              type="text"
-              placeholder="Enter first name"
-              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-            />
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '0' }}>
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ marginBottom: '0.5rem', color: '#555', fontSize: '0.9rem' }}>First Name</div>
+              <input
+                type="text"
+                name="firstName"
+                placeholder="Enter first name"
+                className="input-field"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <div style={{ marginBottom: '0.5rem', color: '#555', fontSize: '0.9rem' }}>Last Name</div>
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Enter last name"
+                className="input-field"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
-          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Last Name</label>
-            <input
-              type="text"
-              placeholder="Enter last name"
-              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>User Name</label>
-            <input
-              type="text"
-              placeholder="Enter user name"
-              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Email</label>
-            <input
-              type="email"
-              placeholder="Enter email"
-              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Password</label>
-            <input
-              type="password"
-              placeholder="Enter password"
-              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            <label style={{ fontSize: '0.9rem', fontWeight: '500', color: '#495057' }}>Type (admin, user, agent)</label>
-            <input
-              type="text"
-              placeholder="Enter type (admin, user, agent)"
-              style={{ padding: '0.55rem 0.75rem', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '0.95rem', outline: 'none' }}
-              value={roleInput}
-              onChange={(e) => setRoleInput(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" style={{ width: '100%', background: '#007bff', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '4px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer' }} disabled={loading}>
-            {loading ? 'Signing up...' : 'Sign Up'}
-          </button>
+          
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem', color: '#555', fontSize: '0.9rem' }}>User Name</div>
+          <input
+            type="text"
+            name="username"
+            placeholder="Enter user name"
+            className="input-field"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem', color: '#555', fontSize: '0.9rem' }}>Email</div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter email"
+            className="input-field"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem', color: '#555', fontSize: '0.9rem' }}>Password</div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter password"
+            className="input-field"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+
+          <div style={{ textAlign: 'left', marginBottom: '0.5rem', color: '#555', fontSize: '0.9rem' }}>Type (admin, user, agent)</div>
+          <select name="role" className="input-field" value={formData.role} onChange={handleChange}>
+            <option value="Customer">user</option>
+            <option value="Agent">agent</option>
+            <option value="Admin">admin</option>
+          </select>
+          <button type="submit" className="btn" style={{ marginTop: '1rem', background: '#0d6efd', borderRadius: '4px' }}>Sign Up</button>
         </form>
-        
-        <p style={{ textAlign: 'center', marginTop: '1.2rem', fontSize: '0.9rem', color: '#6c757d' }}>
-          Already have an account? <Link to="/login" style={{ color: '#007bff', textDecoration: 'none' }}>Log In</Link>
+        <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: '#666' }}>
+          Already have an account? <Link to="/login" style={{ color: '#0d6efd', textDecoration: 'none', fontWeight: 'bold' }}>Login in</Link>
         </p>
       </div>
     </div>
